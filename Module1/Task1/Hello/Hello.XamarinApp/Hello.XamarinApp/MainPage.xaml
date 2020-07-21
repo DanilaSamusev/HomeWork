@@ -6,11 +6,13 @@
              mc:Ignorable="d"
              x:Class="Hello.XamarinApp.MainPage">
 
-    <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" 
-           HorizontalOptions="Center"
-           VerticalOptions="CenterAndExpand" />
-    </StackLayout>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label x:Name="RequestLabel"  Text="Enter user name"/>
+            <Entry x:Name="UserNameEntry"></Entry>
+            <Button x:Name="SubmitUserNameButton" Text="Submit" Clicked="SubmitUserNameButton_Clicked"></Button>
+            <Label x:Name="IntroductionLabel"></Label>
+        </StackLayout>
+    </ContentPage.Content>
 
 </ContentPage>
