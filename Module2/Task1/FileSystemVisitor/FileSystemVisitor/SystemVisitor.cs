@@ -8,7 +8,6 @@ namespace FileSystemVisitor
     public class SystemVisitor
     {
         private readonly Filter _filter;
-        private IEnumerable<Node> _nodes;
         private readonly string _pattern;
         private readonly bool _shouldStop;
 
@@ -27,6 +26,8 @@ namespace FileSystemVisitor
         public event FileFilteredEventHandler NotifyFileFiltered;
         public event FolderFilteredEventHandler NotifyFolderFiltered;
 
+        public IEnumerable<Node> Nodes { get; set; }
+
         public SystemVisitor(bool shouldStop)
         {
             _shouldStop = shouldStop;
@@ -41,18 +42,18 @@ namespace FileSystemVisitor
 
         public IEnumerable<Node> StartSearch(string folderPath)
         {
-            NotifySearchStart("Searching started...");
+            NotifySearchStart?.Invoke("Searching started...");
 
-            _nodes = GetAllNodes(folderPath);
+            Nodes = GetAllNodes(folderPath);
 
-            NotifySearchFinish("Searching finished");
+            NotifySearchFinish?.Invoke("Searching finished");
 
             if (_filter != null)
             {
-                _nodes = FilterNodes().ToList();
+                Nodes = FilterNodes().ToList();
             }
 
-            return _nodes;
+            return Nodes;
         }
 
         public List<Node> GetAllNodes(string folderPath)
@@ -76,7 +77,7 @@ namespace FileSystemVisitor
             return nodes;
         }
 
-        private List<Node> GetFileNodes(string[] filePaths)
+        public List<Node> GetFileNodes(string[] filePaths)
         {
             var nodes = new List<Node>();
 
@@ -88,7 +89,7 @@ namespace FileSystemVisitor
                     Type = NodeType.File
                 };
 
-                NotifyFileFound($"Found file {path}");
+                NotifyFileFound?.Invoke($"Found file {path}");
 
                 nodes.Add(node);
             }
@@ -96,7 +97,7 @@ namespace FileSystemVisitor
             return nodes;
         }
 
-        private List<Node> GetFolderNodes(string[] folderPaths)
+        public List<Node> GetFolderNodes(string[] folderPaths)
         {
             var nodes = new List<Node>();
 
@@ -108,7 +109,7 @@ namespace FileSystemVisitor
                     Type = NodeType.Folder
                 };
 
-                NotifyFolderFound($"Found folder {path}");
+                NotifyFolderFound?.Invoke($"Found folder {path}");
 
                 nodes.Add(node);
             }
@@ -116,20 +117,20 @@ namespace FileSystemVisitor
             return nodes;
         }
 
-        private IEnumerable<Node> FilterNodes()
+        public IEnumerable<Node> FilterNodes()
         {
-            foreach (var node in _nodes)
+            foreach (var node in Nodes)
             {
                 if (_filter(node, _pattern))
                 {
                     if (node.Type == NodeType.File)
                     {
-                        NotifyFileFiltered($"Filtered file {node.Path}");
+                        NotifyFileFiltered?.Invoke($"Filtered file {node.Path}");
                     }
 
                     if (node.Type == NodeType.Folder)
                     {
-                        NotifyFolderFiltered($"Filtered folder {node.Path}");
+                        NotifyFolderFiltered?.Invoke($"Filtered folder {node.Path}");
                     }
 
                     yield return node;
@@ -141,5 +142,7 @@ namespace FileSystemVisitor
                 }
             }
         }
+
+
     }
 }
