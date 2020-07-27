@@ -50,7 +50,28 @@ namespace SampleQueries
 
         public void Linq2()
         {
+            var customers = dataSource.Customers
+                .Select(customer => new
+                {
+                    Customer = customer,
+                    Suppliers = dataSource.Suppliers
+                        .Where(supplier => supplier.City == customer.City && supplier.Country == customer.Country)
+                });
 
+            customers = dataSource.Customers.GroupJoin(dataSource.Suppliers,
+                    customer => new {customer.City, customer.Country},
+                    supplier => new {supplier.City, supplier.Country},
+                    (customer, suppliers) => new {Customer = customer, Suppliers = suppliers});
+
+            foreach (var c in customers)
+            {
+                ObjectDumper.Write(c.Customer.CompanyName);
+
+                foreach (var supplier in c.Suppliers)
+                {
+                    ObjectDumper.Write($"\t{supplier.SupplierName}");
+                }
+            }
         }
 
         [Category("Restriction Operators")]
