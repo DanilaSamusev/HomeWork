@@ -28,7 +28,7 @@ namespace SampleQueries
 
         [Category("Restriction Operators")]
         [Title("Where - Task 1")]
-        [Description("This sample return customer name, whose total order price is more than X")]
+        [Description("")]
 
         public void Linq1()
         {
@@ -38,15 +38,15 @@ namespace SampleQueries
                 .Where(customer => customer.Orders.Sum(order => order.Total) > X)
                 .Select(customer => customer.CompanyName);
 
-            foreach (var p in customerNames)
+            foreach (var name in customerNames)
             {
-                ObjectDumper.Write(p);
+                ObjectDumper.Write(name);
             }
         }
 
         [Category("Restriction Operators")]
         [Title("Where - Task 2")]
-        [Description("This sample return customer name, whose total order price is more than X")]
+        [Description("")]
 
         public void Linq2()
         {
@@ -63,11 +63,11 @@ namespace SampleQueries
                     supplier => new {supplier.City, supplier.Country},
                     (customer, suppliers) => new {Customer = customer, Suppliers = suppliers});
 
-            foreach (var c in customers)
+            foreach (var customer in customers)
             {
-                ObjectDumper.Write(c.Customer.CompanyName);
+                ObjectDumper.Write(customer.Customer.CompanyName);
 
-                foreach (var supplier in c.Suppliers)
+                foreach (var supplier in customer.Suppliers)
                 {
                     ObjectDumper.Write($"\t{supplier.SupplierName}");
                 }
@@ -76,7 +76,7 @@ namespace SampleQueries
 
         [Category("Restriction Operators")]
         [Title("Where - Task 3")]
-        [Description("This sample return customer name, whose total order price is more than X")]
+        [Description("")]
 
         public void Linq3()
         {
@@ -86,9 +86,9 @@ namespace SampleQueries
                 .Where(customer => customer.Orders.Any(order => order.Total > X))
                 .Select(customer => customer.CompanyName);
 
-            foreach (var p in customerNames)
+            foreach (var name in customerNames)
             {
-                ObjectDumper.Write(p);
+                ObjectDumper.Write(name);
             }
         }
 
@@ -282,10 +282,10 @@ namespace SampleQueries
         }
 
         [Category("Restriction Operators")]
-        [Title("Where - Task 10")]
+        [Title("Where - Task 10_1")]
         [Description("This sample return customer name, whose total order price is more than X")]
 
-        public void Linq10()
+        public void Linq10_1()
         {
             var groups = dataSource.Customers
                 .SelectMany(customer => customer.Orders)
@@ -303,6 +303,48 @@ namespace SampleQueries
                 .Sum(group => group.Count()) / 3;
 
             ObjectDumper.Write($"{result} orders in year");
+        }
+
+
+        [Category("Restriction Operators")]
+        [Title("Where - Task 10_2")]
+        [Description("Second version of task 10")]
+
+        public void Linq10_2()
+        {
+            var customerInfos = dataSource.Customers
+                .Select(customer => new
+                {
+                    CustomerId = customer.CustomerID,
+                    MonthsStatistic = customer.Orders.GroupBy(order => order.OrderDate.Month)
+                        .Select(group => new { Month = group.Key, OrdersCount = group.Count() }),
+                    YearsStatistic = customer.Orders.GroupBy(order => order.OrderDate.Year)
+                        .Select(group => new { Year = group.Key, OrdersCount = group.Count() }),
+                    YearMonthStatistic = customer.Orders
+                        .GroupBy(order => new { order.OrderDate.Year, order.OrderDate.Month })
+                        .Select(group => new { group.Key.Year, group.Key.Month, OrdersCount = group.Count() })
+                });
+
+
+            foreach (var info in customerInfos)
+            {
+                ObjectDumper.Write($"Customer id - {info.CustomerId}");
+
+                foreach (var month in info.MonthsStatistic)
+                {
+                    ObjectDumper.Write($"\tMonth - {month.Month} orders - {month.OrdersCount}");
+                }
+
+                foreach (var year in info.YearsStatistic)
+                {
+                    ObjectDumper.Write($"\tYear - {year.Year} orders - {year.OrdersCount}");
+                }
+
+                foreach (var yearMonth in info.YearMonthStatistic)
+                {
+                    ObjectDumper.Write($"\tMonth - {yearMonth.Month} year - {yearMonth.Year} orders - {yearMonth.OrdersCount}");
+                }
+            }
         }
 
         private int GetGroupNumber(Product product)
