@@ -1,32 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+
 using System.Linq;
+using FolderVisor.ConsoleUI.Resources;
 
 namespace FolderVisor.ConsoleUI
 {
     public class SystemWatcher
     {
-        public Dictionary<string, string> PatternToFolder { get; set; }
-        public string DefaultFilePath { get; set; }
-        public bool ShouldAddId { get; set; }
-        public bool ShouldAddCreationDate { get; set; }
-        public int CurrentId { get; set; }
+        private readonly SystemWatcherSettings _settings;
+        private int _currentId = 1;
+        private const string FolderSeparator = "\\";
 
-        public SystemWatcher(Dictionary<string, string> patternToFolder)
+        public SystemWatcher(SystemWatcherSettings settings)
         {
-            PatternToFolder = patternToFolder;
-            DefaultFilePath = "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5\\Default";
-            ShouldAddId = true;
-            ShouldAddCreationDate = true;
-            CurrentId = 1;
+            _settings = settings;
         }
 
         public void Run()
         {
-            string[] folderPaths = { "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5", "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module4" };
-
-            foreach (var folderPath in folderPaths)
+            foreach (var folderPath in _settings.FoldersToListen)
             {
                 Watch(folderPath);
             }
@@ -36,19 +29,20 @@ namespace FolderVisor.ConsoleUI
 
         public void Watch(string path)
         {
-            var watcher = new FileSystemWatcher();
+            var watcher = new FileSystemWatcher
+            {
+                Path = path,
+                NotifyFilter = NotifyFilters.LastWrite
+                               | NotifyFilters.FileName,
+                Filter = string.Empty
+            };
 
-            watcher.Path = path;
-            watcher.NotifyFilter = NotifyFilters.LastWrite
-                                   | NotifyFilters.FileName;
-            watcher.Filter = "";
             watcher.Created += HandleFileCreated;
             watcher.EnableRaisingEvents = true;
         }
 
         private void HandleFileCreated(object source, FileSystemEventArgs e)
         {
-            Log($"New file {e.FullPath} detected. Creation date: {DateTime.Now}");
             MoveFile(e.FullPath);
         }
 
@@ -59,32 +53,34 @@ namespace FolderVisor.ConsoleUI
 
         private void MoveFile(string filePath)
         {
+            Log($"{filePath} {Local.NewEnteryDetected} {DateTime.Now:dd.MM.yyyy}");
             string fileName = GetFileNameByFullPath(filePath);
 
-            string creationDate = ShouldAddCreationDate ? $"{DateTime.Now:dd.MM.yyyy}" : "";
-            string id = ShouldAddId ? $"№{CurrentId}" : "";
+            string creationDate = _settings.ShouldAddCreationDate ? $"{DateTime.Now:dd.MM.yyyy}" : string.Empty;
+            string id = _settings.ShouldAddId ? $"№{_currentId}" : string.Empty;
 
-            foreach (var keyValue in PatternToFolder)
+            foreach (var keyValue in _settings.PatternToFolder)
             {
                 if (filePath.Contains(keyValue.Key))
                 {
-                    Log($"{filePath} mathes the patter '{keyValue.Key}'!");
+                    Log($"{filePath} {Local.MatchesPattern} '{keyValue.Key}'!");
                     string destination = $"{keyValue.Value}\\{creationDate}{id}{fileName}";
                     File.Move(filePath, destination);
-                    Log($"{filePath} was moved to {destination}");
+                    Log($"{filePath} {Local.MovedTo} {destination}");
+                    _currentId++;
                     return;
                 }
             }
 
-            Log($"{filePath} not matches any patterns!");
-            File.Move(filePath, $"{DefaultFilePath}\\{fileName}");
-            Log($"{filePath} was moved to default folder {DefaultFilePath}");
-            CurrentId++;
+            Log($"{filePath} {Local.NotMatchesAnyPattern}");
+            File.Move(filePath, $"{_settings.DefaultFilePath}\\{fileName}");
+            Log($"{filePath} {Local.MovedToDefaultFolder} {_settings.DefaultFilePath}");
+            _currentId++;
         }
 
         private string GetFileNameByFullPath(string path)
         {
-            string[] splitPath = path.Split("\\");
+            string[] splitPath = path.Split(FolderSeparator);
 
             return splitPath.Last();
         }

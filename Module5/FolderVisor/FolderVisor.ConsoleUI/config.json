@@ -1,0 +1,13 @@
+{
+  "PatternToFolder": {
+    ".txt": "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5\\Txt",
+    ".docx": "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5\\Docx"
+  },
+
+  "FoldersToListen": [ "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5", "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module4" ], 
+
+  "DefaultFilePath": "C:\\Users\\Danila_Samuseu\\Desktop\\HomeWork\\Module5\\Default",
+  "ShouldAddId": true,
+  "ShouldAddCreationDate": true,
+  "Language" : ""
+}
