@@ -1,0 +1,82 @@
+<catalog>
+
+  <book>
+    <name>Book1</name>
+    <authors>
+      <author>Author1</author>
+      <author>Author2</author>
+    </authors>
+    <city>City</city>
+    <publishHouse>Publish</publishHouse>
+    <publishYear>2000</publishYear>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+    <ISBN>12</ISBN>
+  </book>
+
+  <paper>
+    <name>Paper1</name>
+    <city>City</city>
+    <publishHouse>Publish</publishHouse>
+    <publishYear>2000</publishYear>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+    <number>1</number>
+    <date>10/20/2000</date>
+    <ISBN>13</ISBN>
+  </paper>
+
+  <patent>
+    <name>Patent1</name>
+    <inventors>
+      <inventor>Inventor1</inventor>
+      <inventor>Inventor2</inventor>
+    </inventors>
+    <country>Country</country>
+    <registerNumber>1</registerNumber>
+    <requestDate>10/20/2000</requestDate>
+    <publishDate>10/25/2000</publishDate>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+  </patent>
+
+  <book>
+    <name>Book2</name>
+    <authors>
+      <author>Author3</author>
+    </authors>
+    <city>City</city>
+    <publishHouse>Publish</publishHouse>
+    <publishYear>2000</publishYear>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+    <ISBN>14</ISBN>
+  </book>
+
+  <paper>
+    <name>Paper2</name>
+    <city>City</city>
+    <publishHouse>Publish</publishHouse>
+    <publishYear>2000</publishYear>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+    <number>1</number>
+    <date>10/20/2000</date>
+    <ISBN>15</ISBN>
+  </paper>
+
+  <patent>
+    <name>Patent2</name>
+    <inventors>
+      <inventor>Inventor1</inventor>
+      <inventor>Inventor2</inventor>
+    </inventors>
+    <country>Country</country>
+    <registerNumber>1</registerNumber>
+    <requestDate>10/20/2000</requestDate>
+    <publishDate>10/25/2000</publishDate>
+    <pageCount>200</pageCount>
+    <note>Note</note>
+  </patent>
+
+</catalog>
