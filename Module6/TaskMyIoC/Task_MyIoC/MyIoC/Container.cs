@@ -17,7 +17,26 @@ namespace MyIoC
 		}
 
 		public void AddAssembly(Assembly assembly)
-		{ }
+		{
+			IEnumerable<Type> types = assembly.ExportedTypes;
+
+			foreach (var type in types)
+			{
+				var constructorImportAttribute = type.GetCustomAttribute<ImportConstructorAttribute>();
+
+				if (constructorImportAttribute != null || HasPropertyToImport(type))
+				{
+					_registeredTipes.Add(type, type);
+				}
+
+				var exportAttributes = type.GetCustomAttributes<ExportAttribute>();
+
+				foreach (var exportAttribute in exportAttributes)
+				{
+					_registeredTipes.Add(exportAttribute.Contract ?? type, type);
+				}
+			}
+		}
 
 		public void AddType(Type type)
 		{
@@ -72,6 +91,19 @@ namespace MyIoC
 			return instance;
 		}
 
+		public void Sample()
+		{
+			var container = new Container();
+			container.AddAssembly(Assembly.GetExecutingAssembly());
+
+			var customerBLL = (CustomerBLL)container.CreateInstance(typeof(CustomerBLL));
+			var customerBLL2 = container.CreateInstance<CustomerBLL>();
+
+			container.AddType(typeof(CustomerBLL));
+			container.AddType(typeof(Logger));
+			container.AddType(typeof(CustomerDAL), typeof(ICustomerDAL));
+		}
+
 		private object[] ResolveConstructorParameters(Type actualType)
 		{
 			var constructorInfo = actualType.GetConstructors().First();
@@ -95,17 +127,11 @@ namespace MyIoC
 			return type.GetProperties().Where(p => p.GetCustomAttribute<ImportAttribute>() != null);
 		}
 
-		public void Sample()
+		private bool HasPropertyToImport(Type type)
 		{
-			var container = new Container();
-			container.AddAssembly(Assembly.GetExecutingAssembly());
+			var propertiesInfo = GetPropertiesToImport(type);
 
-			var customerBLL = (CustomerBLL)container.CreateInstance(typeof(CustomerBLL));
-			var customerBLL2 = container.CreateInstance<CustomerBLL>();
-
-			container.AddType(typeof(CustomerBLL));
-			container.AddType(typeof(Logger));
-			container.AddType(typeof(CustomerDAL), typeof(ICustomerDAL));
+			return propertiesInfo.Any();
 		}
 	}
 }
