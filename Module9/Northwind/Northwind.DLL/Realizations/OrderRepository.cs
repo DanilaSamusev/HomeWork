@@ -15,10 +15,7 @@ namespace Northwind.DLL.Realizations
         private const string GetByIdQuery =
             "SELECT OrderId, OrderDate, RequiredDate, ShipName, ShipCity, ShippedDate FROM [Northwind].[dbo].[Orders] WHERE OrderId = @Id";
 
-        private const string GetProductsByOrderIdQuery =
-            "SELECT od.UnitPrice, Quantity, ProductName " +
-            "FROM [Northwind].[dbo].[Order Details] od " +
-            "LEFT JOIN [Northwind].[dbo].[Products] p ON od.ProductID = p.ProductID WHERE OrderId = @Id";
+        private const string DeleteQuery = "DELETE FROM [Northwind].[dbo].[Orders] WHERE OrderId = @Id";
 
         public OrderRepository(string connectionString, string provider)
         {
@@ -62,9 +59,9 @@ namespace Northwind.DLL.Realizations
             return orders;
         }
 
-        public OrderDetails GetById(int id)
+        public Order GetById(int id)
         {
-            OrderDetails orderDetails;
+            Order order;
 
             using (var connection = _providerFactory.CreateConnection())
             {
@@ -89,7 +86,7 @@ namespace Northwind.DLL.Realizations
 
                 reader.Read();
 
-                orderDetails = new OrderDetails
+                order = new Order
                 {
                     Id = reader.GetInt32(0),
                     OrderDate = reader.GetDateTime(1),
@@ -100,53 +97,34 @@ namespace Northwind.DLL.Realizations
                         ? OrderStatus.NotShipped
                         : OrderStatus.Shipped,
                 };
-
-                var products = GetProductsByOrderId(id).ToList();
-                orderDetails.products = products;
             }
 
-            return orderDetails;
+            return order;
         }
 
-        private IEnumerable<Product> GetProductsByOrderId(int id)
+        public void Delete(int id)
         {
-            var products = new List<Product>();
-
             using (var connection = _providerFactory.CreateConnection())
             {
-                connection.ConnectionString = _connectionString;
-                connection.Open();
+                var order = GetById(id);
 
-                using var command = connection.CreateCommand();
-                command.CommandText = GetProductsByOrderIdQuery;
-                command.CommandType = CommandType.Text;
-
-                var idParameter = command.CreateParameter();
-                idParameter.ParameterName = "Id";
-                idParameter.Value = id;
-                command.Parameters.Add(idParameter);
-
-                using var reader = command.ExecuteReader();
-
-                if (!reader.HasRows)
+                if (order.Status == OrderStatus.NotShipped)
                 {
-                    return null;
+                    connection.ConnectionString = _connectionString;
+                    connection.Open();
+
+                    using var command = connection.CreateCommand();
+                    command.CommandText = DeleteQuery;
+                    command.CommandType = CommandType.Text;
+
+                    var idParameter = command.CreateParameter();
+                    idParameter.ParameterName = "Id";
+                    idParameter.Value = id;
+                    command.Parameters.Add(idParameter);
+
+                    command.ExecuteNonQuery();
                 }
-
-                while (reader.Read())
-                {
-                    var product = new Product
-                    {
-                        UnitPrice = reader.GetDecimal(0),
-                        Quantity = reader.GetInt16(1),
-                        Name = reader.GetString(2),
-                    };
-
-                    products.Add(product);
-                };
             }
-
-            return products;
         }
     }
 }
