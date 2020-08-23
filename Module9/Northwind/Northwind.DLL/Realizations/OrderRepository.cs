@@ -153,27 +153,40 @@ namespace Northwind.DLL.Realizations
 
         public void Delete(int id)
         {
-            using (var connection = _providerFactory.CreateConnection())
+            using var connection = _providerFactory.CreateConnection();
+            var order = GetById(id);
+
+            if (order.Status == OrderStatus.NotShipped)
             {
-                var order = GetById(id);
+                connection.ConnectionString = _connectionString;
+                connection.Open();
 
-                if (order.Status == OrderStatus.NotShipped)
-                {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = DeleteQuery;
+                command.CommandType = CommandType.Text;
 
-                    using var command = connection.CreateCommand();
-                    command.CommandText = DeleteQuery;
-                    command.CommandType = CommandType.Text;
+                var idParameter = command.CreateParameter();
+                idParameter.ParameterName = "Id";
+                idParameter.Value = id;
+                command.Parameters.Add(idParameter);
 
-                    var idParameter = command.CreateParameter();
-                    idParameter.ParameterName = "Id";
-                    idParameter.Value = id;
-                    command.Parameters.Add(idParameter);
-
-                    command.ExecuteNonQuery();
-                }
+                command.ExecuteNonQuery();
             }
+        }
+
+        public void CustOrderHist(int id)
+        {
+            using var connection = _providerFactory.CreateConnection();
+            connection.ConnectionString = _connectionString;
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "[Northwind].CustOrderHist";
+
+            SetParameter(command, id, "Id");
+
+            var reader = command.ExecuteReader();
         }
 
         private void SetParameter(DbCommand command, object value, string name)
