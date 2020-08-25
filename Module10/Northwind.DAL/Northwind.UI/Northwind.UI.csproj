@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Northwind.DAL\Northwind.DAL.csproj" />
+    <ProjectReference Include="..\Northwind.Shared\Northwind.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
