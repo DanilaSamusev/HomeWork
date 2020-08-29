@@ -1,4 +1,5 @@
 ﻿using Northwind.DAL;
+using Northwind.Shared;
 
 namespace Northwind.UI
 {
@@ -12,6 +13,15 @@ namespace Northwind.UI
 
             //var products = productRepository.GetAllProducts();
             var employees = productRepository.GetEmployeeForSupplierStatistic();
+
+            EmployeeWithTerritories a = new EmployeeWithTerritories()
+            {
+                FirstName = "Me",
+                LastName = "He",
+            };
+
+            productRepository.CreateEmployeeWithTerritories(a);
+
         }
     }
 }

@@ -89,5 +89,25 @@ namespace Northwind.DAL
 
             return employeeStatistic;
         }
+
+        public void CreateEmployeeWithTerritories(EmployeeWithTerritories employee)
+        {
+            using (IDbConnection db = new SqlConnection(_connectionString))
+            {
+                string query = "INSERT INTO [Northwind].[Northwind].[Employees] (LastName, FirstName) " +
+                               "VALUES(@LastName, @FirstName) " +
+                               "SELECT SCOPE_IDENTITY()";
+
+                employee.Id = db.Query<int>(query, employee).First();
+
+                foreach (var territory in employee.Territories)
+                {
+                    territory.Id = db.Query<int>(@"INSERT INTO [Northwind].[Northwind].[Territories] VALUES(@Name) SELECT SCOPE_IDENTITY()", territory).First();
+                }
+
+                db.Execute(@"INSERT INTO [Northwind].[Northwind].[EmployeeTerritories] (EmployeeId, TerritoryId) VALUES(@EmployeeId, @TerritoryId)",
+                    employee.Territories.Select(t => new { EmployeeId = employee.Id, TerritoryId = t.Id }));
+            }
+        }
     }
 }
