@@ -65,18 +65,18 @@ namespace MongoBLL
         {
             int maxCount = _collection.AsQueryable().Max(book => book.Count);
 
-            return _collection.AsQueryable()
-                .Where(book => book.Count == maxCount)
-                .FirstOrDefault();
+            return _collection
+                .AsQueryable()
+                .FirstOrDefault(book => book.Count == maxCount);
         }
 
         public Book GetMinCountBook()
         {
             int maxCount = _collection.AsQueryable().Min(book => book.Count);
 
-            return _collection.AsQueryable()
-                .Where(book => book.Count == maxCount)
-                .FirstOrDefault();
+            return _collection
+                .AsQueryable()
+                .FirstOrDefault(book => book.Count == maxCount);
         }
 
         public IEnumerable<string> GetAuthors()
